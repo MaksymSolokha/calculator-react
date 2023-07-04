@@ -60,7 +60,13 @@ const Calculator = () => {
           {createDigits()}
           <button onClick={() => updateCalc('0')}>0</button>
           <button onClick={() => updateCalc('.')}>.</button>
-          <button>=</button>
+          <button
+            onClick={() => {
+              setCalc(result)
+            }}
+          >
+            =
+          </button>
         </div>
       </div>
     </div>
