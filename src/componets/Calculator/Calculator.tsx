@@ -1,40 +1,45 @@
-import React, { useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import './Calculator.css'
 
 const Calculator = () => {
   const [calc, setCalc] = useState<string>('')
   const [result, setResult] = useState<string>('')
 
-  const opr: string[] = ['/', '*', '+', '-', '.']
+  const opr: string[] = useMemo(() => ['/', '*', '+', '-', '.'], [])
 
-  function calculate(expression: string) {
-    return new Function('return ' + expression)()
-  }
-
-  const updateCalc = (value: string) => {
-    if (
-      (opr.includes(value) && calc === '') ||
-      (opr.includes(value) && opr.includes(calc.slice(-1)))
-    ) {
-      return
+  const calculate = useCallback((expression: string) => {
+    try {
+      return new Function('return ' + expression)()
+    } catch (error) {
+      return ''
     }
-    setCalc(calc + value)
+  }, [])
 
-    if (!opr.includes(value)) {
-      setResult(calculate(calc + value).toString())
-    }
-  }
+  const updateCalc = useCallback(
+    (value: string) => {
+      if (
+        (opr.includes(value) && calc === '') ||
+        (opr.includes(value) && opr.includes(calc.slice(-1)))
+      ) {
+        return
+      }
+
+      const newCalc = calc + value
+      setCalc(newCalc)
+
+      if (!opr.includes(value)) {
+        setResult(calculate(newCalc).toString())
+      }
+    },
+    [calc, calculate, opr],
+  )
 
   const createDigits = () => {
-    const digits = []
-    for (let i = 1; i < 10; i++) {
-      digits.push(
-        <button onClick={() => updateCalc(i.toString())} key={i}>
-          {i}
-        </button>,
-      )
-    }
-    return digits
+    return Array.from({ length: 9 }, (_, i) => i + 1).map((i) => (
+      <button onClick={() => updateCalc(i.toString())} key={i}>
+        {i}
+      </button>
+    ))
   }
   return (
     <div className={'calculator'}>
